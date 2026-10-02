@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Irrigation Dashboard</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f3;
+            color: #263238;
+        }
+
+        header {
+            background: #1b5e20;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        header p {
+            margin: 8px 0 0;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(220px, 1fr));
+
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow:
+                0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 18px;
+        }
+
+        .value {
+            font-size: 38px;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+
+        .unit {
+            font-size: 18px;
+            color: #607d8b;
+        }
+
+        .status {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .on {
+            color: #2e7d32;
+        }
+
+        .off {
+            color: #c62828;
+        }
+
+        .dry {
+            color: #ef6c00;
+        }
+
+        .moist {
+            color: #2e7d32;
+        }
+
+        .offline {
+            color: #c62828;
+        }
+
+        .section {
+            margin-top: 25px;
+        }
+
+        .info {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow:
+                0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #607d8b;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<header>
+
+    <h1>🌱 Smart Irrigation Dashboard</h1>
+
+    <p>
+        IoT-Based Automated Irrigation and Soil Monitoring System
+    </p>
+
+</header>
+
+
+<div class="container">
+
+    <div class="cards">
+
+        <!-- Soil Moisture -->
+
+        <div class="card">
+
+            <h2>🌱 Soil Moisture</h2>
+
+            <div class="value">
+                <span id="soil">--</span>
+                <span class="unit">%</span>
+            </div>
+
+        </div>
+
+
+        <!-- Temperature -->
+
+        <div class="card">
+
+            <h2>🌡️ Temperature</h2>
+
+            <div class="value">
+                <span id="temperature">--</span>
+                <span class="unit">°C</span>
+            </div>
+
+        </div>
+
+
+        <!-- Humidity -->
+
+        <div class="card">
+
+            <h2>💧 Humidity</h2>
+
+            <div class="value">
+                <span id="humidity">--</span>
+                <span class="unit">%</span>
+            </div>
+
+        </div>
+
+
+        <!-- Pump -->
+
+        <div class="card">
+
+            <h2>🚰 Pump Status</h2>
+
+            <div id="pump"
+                 class="status off">
+
+                OFF
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="section">
+
+        <div class="info">
+
+            <h2>System Information</h2>
+
+            <div class="info-row">
+
+                <span>Moisture Threshold</span>
+
+                <strong>
+                    <span id="threshold">40</span>%
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>Soil Condition</span>
+
+                <strong id="condition">
+                    --
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>Irrigation Decision</span>
+
+                <strong id="irrigation">
+                    --
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>ESP8266 Connection</span>
+
+                <strong id="connection">
+                    --
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<footer>
+
+    Smart Agriculture Monitoring System
+
+</footer>
+
+
+<script>
+
+function updateDashboard() {
+
+    fetch("/api/data")
+
+        .then(response => response.json())
+
+        .then(data => {
+
+            document.getElementById("soil")
+                .innerText = data.soil;
+
+            document.getElementById("temperature")
+                .innerText = data.temperature;
+
+            document.getElementById("humidity")
+                .innerText = data.humidity;
+
+            document.getElementById("threshold")
+                .innerText = data.threshold;
+
+            document.getElementById("condition")
+                .innerText = data.condition;
+
+            document.getElementById("irrigation")
+                .innerText = data.irrigation;
+
+
+            let pump =
+                document.getElementById("pump");
+
+
+            if (data.pump) {
+
+                pump.innerText = "ON";
+
+                pump.className =
+                    "status on";
+
+            }
+
+            else {
+
+                pump.innerText = "OFF";
+
+                pump.className =
+                    "status off";
+
+            }
+
+
+            let connection =
+                document.getElementById("connection");
+
+
+            if (data.connected) {
+
+                connection.innerText =
+                    "CONNECTED";
+
+                connection.className =
+                    "moist";
+
+            }
+
+            else {
+
+                connection.innerText =
+                    "OFFLINE";
+
+                connection.className =
+                    "offline";
+
+            }
+
+
+            let condition =
+                document.getElementById("condition");
+
+
+            if (data.condition === "DRY") {
+
+                condition.className = "dry";
+
+            }
+
+            else if (data.condition === "MOIST") {
+
+                condition.className = "moist";
+
+            }
+
+        })
+
+        .catch(error => {
+
+            console.log("Dashboard error:", error);
+
+        });
+
+}
+
+
+updateDashboard();
+
+
+setInterval(
+    updateDashboard,
+    2000
+);
+
+</script>
+
+
+</body>
+
+</html>
